@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: public
+    tables:
+      - name: labellevie
+      - name: auchan
+      - name: carrefour
+      - name: biocoop
+      - name: biocoop_categories
+      - name: auchan_categories
+      - name: labellevie_categories
+      - name: carrefour_categories
