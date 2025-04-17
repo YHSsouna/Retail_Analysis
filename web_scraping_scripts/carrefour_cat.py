@@ -3,6 +3,10 @@ import time
 import requests
 import json
 import pandas as pd
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 
 DB_PARAMS = {
@@ -67,7 +71,7 @@ df_filtered = df[~df['name'].isin(df_cat['name'])]
 df = df_filtered.reset_index(drop=True)
 unique_names = df['name'].unique().tolist()
 API_URL = "https://api.groq.com/openai/v1/chat/completions"  # Example endpoint
-HEADERS = {"Authorization": "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"}
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 
 HEADERS = {"Authorization": f"Bearer {GROQ_API_KEY}"}
