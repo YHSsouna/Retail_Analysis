@@ -67,7 +67,7 @@ df = df_filtered.reset_index(drop=True)
 unique_names = df['name'].unique().tolist()
 API_URL = "https://api.groq.com/openai/v1/chat/completions"  # Example endpoint
 HEADERS = {"Authorization": "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"}
-GROQ_API_KEY = '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'
+
 
 HEADERS = {"Authorization": f"Bearer {GROQ_API_KEY}"}
 
