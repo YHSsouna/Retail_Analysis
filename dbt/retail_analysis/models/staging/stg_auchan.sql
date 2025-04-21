@@ -11,7 +11,6 @@ with raw_auchan as (
         replace(replace(regexp_replace(price_per_quantity, '[^a-zA-Z\s]+', '', 'g'),'€',''),'x','') as unit,
         replace(replace(regexp_replace(quantity, '[^a-zA-Z\s]+', '', 'g'),'€',''),'x','') as ss,
         regexp_replace(quantity, '[^0-9\.]+', '', 'g') AS quantity,
-        regexp_replace(replace(price_per_quantity,',','.'), '[^0-9\.]+', '', 'g') AS price_per_quantity,
 
         marque,
 
@@ -30,6 +29,17 @@ raw_category as (
         name,
         mapped_category as category
     from {{ source('public', 'auchan_categories') }}
+),
+
+raw_norm as (
+    select
+        name,
+        unit,
+        CASE
+            WHEN quantity::numeric = 0 THEN NULL
+            ELSE quantity::numeric
+        END AS quantity
+    from {{ source('public', 'auchan_norm') }}
 )
 
 
@@ -39,9 +49,12 @@ select
     l.name,
     cleaned_price as price,
     stock,
-    quantity,
-    price_per_quantity,
-    unit,
+    n.quantity,
+    n.unit,
+    CASE
+        WHEN n.quantity::numeric IS NULL THEN NULL
+        ELSE cleaned_price::numeric / n.quantity::numeric
+    END AS price_per_quantity,
     c.category,
     date,
     marque,
@@ -50,3 +63,5 @@ select
 from raw_auchan as l
 join raw_category as c
 on c.name = l.name
+join raw_norm as n
+on n.name = l.name

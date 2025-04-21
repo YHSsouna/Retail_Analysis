@@ -28,7 +28,10 @@ raw_category as (
 raw_norm as (
         select
             name,
-            quantity::numeric as quantity,
+            CASE
+                WHEN quantity::numeric = 0 THEN NULL
+                ELSE quantity::numeric
+            END AS quantity,
             unit
         from {{ source('public', 'labellevie_norm') }}
 )
@@ -38,12 +41,16 @@ select
     l.name,
     price_cleaned as price,
     stock,
-    promotion,
-    date_cleaned as date,
     n.quantity,
     n.unit,
-    store,
+    CASE
+        WHEN n.quantity::numeric IS NULL THEN NULL
+        ELSE price_cleaned::numeric / n.quantity::numeric
+    END AS price_per_quantity,
     c.category,
+    date_cleaned as date,
+    promotion,
+    store,
     image_url
 
 from raw_labellevie as l

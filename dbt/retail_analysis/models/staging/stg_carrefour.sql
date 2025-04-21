@@ -87,13 +87,26 @@ select
     l.name,
     cleaned_price as price,
     stock,
-    cleaned_promotion as promotion,
-    price_per_unit,
-    unit,
-    quantity,
+    CASE
+        WHEN l.unit = 'kg' THEN l.quantity * 1000
+        WHEN l.unit = 'kg' THEN l.quantity * 1000
+        WHEN l.unit = 'kg' THEN l.quantity * 1000
+        WHEN l.unit = 'ml' THEN l.quantity / 1000
+        ELSE l.quantity
+    END AS quantity,
+    replace(replace(replace(replace(replace(l.unit,'kg','g'),'KG','g'),'Kg','g'),'ml','L'),'U','UNITE') as unit,
+    CASE
+        WHEN l.quantity::numeric IS NULL THEN NULL
+        WHEN l.unit = 'kg' THEN price_per_unit * 1000
+        WHEN l.unit = 'Kg' THEN price_per_unit * 1000
+        WHEN l.unit = 'KG' THEN price_per_unit * 1000
+        WHEN l.unit = 'ml' THEN price_per_unit / 1000
+        ELSE price_per_unit
+    END AS price_per_quantity,
     c.category,
     date,
     store,
+    cleaned_promotion as promotion,
     image_url
 from raw_carrefour as l
 join raw_category as c

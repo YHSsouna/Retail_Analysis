@@ -12,7 +12,7 @@ with raw_biocoop as (
 
         replace(replace(price,'2150','2.15'),'1975','1.975')::numeric as cleaned_price,
 
-        replace(regexp_replace(price_per_quantity, '[^a-zA-Z\s]+', '', 'g'),'€','') as unit,
+        replace(replace(regexp_replace(price_per_quantity, '[^a-zA-Z\s]+', '', 'g'),'€',''),' ','') as unit,
         regexp_replace(replace(price_per_quantity,',','.'), '[^0-9\.]+', '', 'g')::numeric AS price_per_quantity,
         CASE
             WHEN NULLIF(
@@ -51,9 +51,16 @@ select
     l.name,
     cleaned_price as price,
     stock,
-    price_per_quantity,
-    quantity,
-    unit,
+    CASE
+        WHEN l.unit = 'kg' THEN l.quantity * 1000
+        ELSE l.quantity
+    END AS quantity,
+    replace(l.unit,'kg','g') as unit,
+    CASE
+        WHEN l.quantity::numeric IS NULL THEN NULL
+        WHEN l.unit = 'kg' THEN (cleaned_price / (l.quantity * 1000))::numeric
+        ELSE cleaned_price::numeric / l.quantity::numeric
+    END AS price_per_quantity,
     c.category,
     date,
     store,

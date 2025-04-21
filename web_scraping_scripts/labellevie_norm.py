@@ -75,20 +75,26 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 HEADERS = {"Authorization": f"Bearer {GROQ_API_KEY}"}
 
-
 inside_parentheses = []
+
 for name in unique_names:
-    match = re.search(r'\((.*?)\)', name)
-    if match:
-        content = match.group(1)
-        # Check if there's a comma and split
-        if ',' in content:
-            right_part = content.split(',', 1)[1].strip()
-            inside_parentheses.append(right_part)
-        else:
-            inside_parentheses.append(content.strip())
+    # Find all occurrences of parentheses
+    matches = re.findall(r'\((.*?)\)', name)
+
+    if len(matches) >= 2:
+        content = matches[1]  # Take the second one
+    elif matches:
+        content = matches[0]  # Only one match
     else:
         inside_parentheses.append("")
+        continue
+
+    # If there's a comma, take the right side
+    if ',' in content:
+        right_part = content.split(',', 1)[1].strip()
+        inside_parentheses.append(right_part)
+    else:
+        inside_parentheses.append(content.strip())
 
 
 all_unit = []
@@ -120,7 +126,9 @@ Follow these rules strictly:
 - `"x15, 300 ml"` → `{{"quantity": 0.300, "unit": "L"}}`
 - `"4 x 1 kg"` → `{{"quantity": 4000, "unit": "g"}}`
 - `"Lot de 6 assiettes"` → `{{"quantity": 1, "unit": "UNITE"}}`
+- `"Lot de 6 assiettes"` → `{{"quantity": 6, "unit": "UNITE"}}`
 - `"Dentifrice Colgate"` → `{{"quantity": 0, "unit": ""}}`
+- `"x9"` → `{{"quantity": 9, "unit": "UNITE"}}`
 - `""` → `{{"quantity": 0, "unit": "}}`
 
 **Return only** the result in **JSON array format**, like this don't write anything else:
