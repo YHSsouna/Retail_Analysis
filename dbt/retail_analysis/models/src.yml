@@ -11,3 +11,4 @@ sources:
       - name: auchan_categories
       - name: labellevie_categories
       - name: carrefour_categories
+      - name: labellevie_norm

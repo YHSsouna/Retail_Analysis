@@ -28,4 +28,10 @@ categorize_labellevie = BashOperator(
     dag=dag,
 )
 
-scrape_labellevie >> categorize_labellevie
+normalize_labellevie = BashOperator(
+    task_id='normalize_labellevie',
+    bash_command='python /opt/airflow/web_scraping_scripts/labellevie_norm.py',
+    dag=dag,
+)
+
+scrape_labellevie >> categorize_labellevie >> normalize_labellevie

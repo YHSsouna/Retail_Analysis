@@ -23,6 +23,14 @@ raw_category as (
         name,
         category
     from {{ source('public', 'labellevie_categories') }}
+),
+
+raw_norm as (
+        select
+            name,
+            quantity::numeric as quantity,
+            unit
+        from {{ source('public', 'labellevie_norm') }}
 )
 
 select
@@ -32,7 +40,8 @@ select
     stock,
     promotion,
     date_cleaned as date,
-    extracted_content as quantity,
+    n.quantity,
+    n.unit,
     store,
     c.category,
     image_url
@@ -40,3 +49,5 @@ select
 from raw_labellevie as l
 join raw_category as c
 on c.name = l.name
+join raw_norm as n
+on n.name = l.name

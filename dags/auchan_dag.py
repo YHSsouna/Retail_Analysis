@@ -30,4 +30,13 @@ categorize_auchan = BashOperator(
     bash_command='python /opt/airflow/web_scraping_scripts/auchan_cat.py',
     dag=dag,
 )
-scrape_auchan >> categorize_auchan
+
+normalize_auchan = BashOperator(
+    task_id='normalize_auchan',
+    bash_command='python /opt/airflow/web_scraping_scripts/auchan_norm.py',
+    dag=dag,
+)
+
+
+
+scrape_auchan >> categorize_auchan >> normalize_auchan
