@@ -14,7 +14,7 @@ DB_PARAMS = {
     "dbname": "airflow",
     "user": "airflow",
     "password": "airflow",
-    "host": "localhost",
+    "host": "postgres",
     "port": "5432"
 }
 
