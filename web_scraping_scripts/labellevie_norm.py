@@ -146,7 +146,7 @@ Here is the list of product names:
 """
 
     data = {
-        "model": "**Return only** the result in **JSON array format**, like this don't write anything else:",
+        "model": "meta-llama/llama-4-maverick-17b-128e-instruct",
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0
     }
