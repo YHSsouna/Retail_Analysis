@@ -12,21 +12,21 @@ with raw_labellevie as (
             WHEN promotion = '' THEN
                 replace(replace(replace(price, '€', ''), 'au lieu de', ''), '+', '')::numeric
         END as price_cleaned,
-        regexp_replace(name, '.*\((.*)\).*', '\1') AS extracted_content,
         image_url,
         store
     from {{ source('public', 'labellevie') }}
 ),
 
 raw_category as (
-    select
+    select distinct on (name)
         name,
         category
     from {{ source('public', 'labellevie_categories') }}
+    order by name, category
 ),
 
 raw_norm as (
-        select
+        select distinct on (name)
             name,
             CASE
                 WHEN quantity::numeric = 0 THEN NULL
@@ -34,6 +34,7 @@ raw_norm as (
             END AS quantity,
             unit
         from {{ source('public', 'labellevie_norm') }}
+        order by name, quantity desc nulls last
 )
 
 select

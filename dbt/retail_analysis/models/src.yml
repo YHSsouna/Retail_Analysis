@@ -13,3 +13,6 @@ sources:
       - name: carrefour_categories
       - name: labellevie_norm
       - name: auchan_norm
+  - name: public_staging
+    tables:
+      - name: stg_auchan

@@ -75,10 +75,11 @@ with raw_carrefour as(
 ),
 
 raw_category as (
-    select
+    select distinct on (name)
         name,
         category
     from {{ source('public', 'carrefour_categories') }}
+    order by name, category
 )
 
 

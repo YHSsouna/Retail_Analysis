@@ -21,8 +21,8 @@ import time
 
 
 
-COOKIES_FILE = "cookies_bio.pkl"
-LOCAL_STORAGE_FILE = "local_storage_bio.json"
+COOKIES_FILE = "/opt/airflow/web_scraping_scripts/cookies_bio.pkl"
+LOCAL_STORAGE_FILE = "/opt/airflow/web_scraping_scripts/local_storage_bio.json"
 
 STORE_LOCATION_DATA = {
     "journeySearches": '[{"id":"YOUR_ID_HERE","geoSpatialData":{"address":{"zipcode":"YOUR_ZIPCODE","city":"YOUR_CITY","country":"France"},"location":{"latitude":"YOUR_LATITUDE","longitude":"YOUR_LONGITUDE"},"accuracy":"MUNICIPALITY"},"position":"1"}]'
