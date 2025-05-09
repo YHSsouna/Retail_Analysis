@@ -16,3 +16,6 @@ sources:
   - name: public_staging
     tables:
       - name: stg_auchan
+  - name: public_intermediate
+    tables:
+      - name: inter_auchan

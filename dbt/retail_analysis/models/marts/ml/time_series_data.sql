@@ -1,23 +1,18 @@
 with stock_diff as (
-
     select
         *,
-        md5(image_url) as product_id,  -- <--- Generate product_id based on image_url
-        stock - lag(stock) over (partition by name order by date) as raw_stock_diff
-    from {{ source('public_staging', 'stg_auchan') }}
-
-
+        CAST(('x' || substr(md5(image_url), 1, 16))::bit(64) AS BIGINT) as product_id,  -- <--- Generate product_id based on image_url
+        stock - lag(stock) over (partition by image_url order by date_day) as raw_stock_diff
+    from {{ source('public_intermediate', 'inter_auchan') }}
 ),
 
 mean_neg_stock_diff as (
-
     select
-        name,
+        image_url,
         avg(abs(raw_stock_diff)) as mean_negative_stock_diff
     from stock_diff
     where raw_stock_diff <= 0
-    group by name
-
+    group by image_url
 ),
 
 processed as (
@@ -31,14 +26,13 @@ processed as (
         end as stock_diff_hors_restock
     from stock_diff sd
     left join mean_neg_stock_diff mnsd
-        on sd.name = mnsd.name
-
+        on sd.image_url = mnsd.image_url
 )
 
 select
     product_id,
     name,
-    date,
+    date_day as date,
     stock,
     stock_diff_hors_restock,
     image_url

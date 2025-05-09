@@ -1,5 +1,3 @@
-
-
 with raw_auchan as (
     select
         row_number() over (order by date) as id,
