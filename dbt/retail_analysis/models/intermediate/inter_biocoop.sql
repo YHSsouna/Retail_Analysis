@@ -8,7 +8,7 @@ image_url_dates AS (
         image_url,
         MIN(date) AS min_date,
         MAX(date) AS max_date
-    FROM {{ ref('stg_auchan') }}
+    FROM {{ ref('stg_biocoop') }}
     WHERE image_url IS NOT NULL
     GROUP BY image_url
 ),
@@ -33,10 +33,9 @@ joined AS (
         a.unit,
         a.price_per_quantity,
         a.category,
-        a.marque,
         a.store
     FROM image_date_matrix m
-    LEFT JOIN {{ ref('stg_auchan') }} a
+    LEFT JOIN {{ ref('stg_biocoop') }} a
       ON a.image_url = m.image_url
      AND a.date = m.date_day
 ),
@@ -61,7 +60,6 @@ base_case AS (
             unit,
             price_per_quantity,
             category,
-            marque,
             store
         FROM ordered
         WHERE name IS NOT NULL OR price IS NOT NULL OR stock IS NOT NULL
@@ -81,7 +79,6 @@ base_case AS (
             unit,
             price_per_quantity,
             category,
-            marque,
             store
         FROM ordered
         WHERE name IS NOT NULL OR price IS NOT NULL OR stock IS NOT NULL
@@ -106,7 +103,6 @@ recursive_fill AS (
         COALESCE(o.unit, r.unit) AS unit,
         COALESCE(o.price_per_quantity, r.price_per_quantity) AS price_per_quantity,
         COALESCE(o.category, r.category) AS category,
-        COALESCE(o.marque, r.marque) AS marque,
         COALESCE(o.store, r.store) AS store
     FROM ordered o
     JOIN recursive_fill r
@@ -117,7 +113,7 @@ recursive_fill AS (
 -- Final result
 SELECT
     ROW_NUMBER() OVER (ORDER BY image_url, date_day) AS id,
-    CAST(('x' || substr(md5(image_url), 1, 16))::bit(64) AS BIGINT) as product_id,  -- <--- Generate product_id based on image_url
+    CAST(('x' || substr(md5(image_url), 1, 16))::bit(64) AS BIGINT) AS product_id,
     image_url,
     date_day as date,
     name,
@@ -127,7 +123,6 @@ SELECT
     unit,
     price_per_quantity,
     category,
-    marque,
     store
 FROM recursive_fill
 ORDER BY image_url, date_day

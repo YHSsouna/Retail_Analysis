@@ -1,9 +1,8 @@
 with stock_diff as (
     select
         *,
-        CAST(('x' || substr(md5(image_url), 1, 16))::bit(64) AS BIGINT) as product_id,  -- <--- Generate product_id based on image_url
-        stock - lag(stock) over (partition by image_url order by date_day) as raw_stock_diff
-    from {{ source('public_intermediate', 'inter_auchan') }}
+        stock - lag(stock) over (partition by image_url order by date) as raw_stock_diff
+    from {{ ref('inter_auchan') }}
 ),
 
 mean_neg_stock_diff as (
@@ -32,7 +31,7 @@ processed as (
 select
     product_id,
     name,
-    date_day as date,
+    date,
     stock,
     stock_diff_hors_restock,
     image_url

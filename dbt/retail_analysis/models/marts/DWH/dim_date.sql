@@ -1,22 +1,25 @@
+{{ config(materialized='table') }}
+
+
 with raw_dates as (
 
-    select distinct date_trunc('day', date)::date as date
-    from {{ source('public', 'labellevie') }}
+    select distinct date::date as date
+    from {{ ref('inter_labellevie') }}
 
     union
 
     select distinct date::date as date
-    from {{ source('public', 'biocoop') }}
+    from {{ ref('inter_biocoop') }}
 
     union
 
     select distinct date::date as date
-    from {{ source('public', 'carrefour') }}
+    from {{ ref('inter_carrefour') }}
 
     union
 
     select distinct date::date as date
-    from {{ source('public', 'auchan') }}
+    from {{ ref('inter_auchan') }}
 
 ),
 

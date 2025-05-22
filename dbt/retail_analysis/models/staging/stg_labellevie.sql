@@ -35,27 +35,55 @@ raw_norm as (
             unit
         from {{ source('public', 'labellevie_norm') }}
         order by name, quantity desc nulls last
+),
+
+
+final as (
+    select
+        *,
+        row_number() over (partition by image_url, date order by id) as dedup_rank
+    from (
+        select
+            id,
+            l.name,
+            price_cleaned as price,
+            stock,
+            n.quantity,
+            n.unit,
+            CASE
+                WHEN n.quantity::numeric IS NULL THEN NULL
+                ELSE price_cleaned::numeric / n.quantity::numeric
+            END AS price_per_quantity,
+            c.category,
+            date_cleaned as date,
+            promotion,
+            store,
+            image_url
+
+        from raw_labellevie as l
+        join raw_category as c
+        on c.name = l.name
+        join raw_norm as n
+        on n.name = l.name
+
+        where l.image_url is not null
+          and l.image_url != ''
+          and lower(l.image_url) != 'nan'
+    ) as subquery
 )
+
 
 select
     id,
-    l.name,
-    price_cleaned as price,
+    name,
+    price,
     stock,
-    n.quantity,
-    n.unit,
-    CASE
-        WHEN n.quantity::numeric IS NULL THEN NULL
-        ELSE price_cleaned::numeric / n.quantity::numeric
-    END AS price_per_quantity,
-    c.category,
-    date_cleaned as date,
-    promotion,
+    quantity,
+    unit,
+    price_per_quantity,
+    category,
+    date,
     store,
     image_url
-
-from raw_labellevie as l
-join raw_category as c
-on c.name = l.name
-join raw_norm as n
-on n.name = l.name
+from final
+where dedup_rank = 1
