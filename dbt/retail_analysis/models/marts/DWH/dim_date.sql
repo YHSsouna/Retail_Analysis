@@ -29,7 +29,8 @@ dim_date as (
         row_number() over (order by date) as date_id,
         extract(day from date) as day,
         extract(month from date) as month,
-        extract(year from date) as year
+        extract(year from date) as year,
+        date
     from raw_dates
 
 )
