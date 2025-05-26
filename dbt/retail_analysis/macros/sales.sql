@@ -8,7 +8,7 @@
     end
 {% endmacro %}
 
-{% macro sales(source_table, product_col='product_id', date_col='date', stock_col='stock', image_col='image_url') %}
+{% macro sales(source_table, product_col='product_id', date_col='date', stock_col='stock', image_col='image_url', quantity_col='quantity', price_per_quantity_col='price_per_quantity', unit_col='unit') %}
 
 with base as (
     select
@@ -16,6 +16,9 @@ with base as (
         {{ image_col }} as image_url,
         {{ date_col }} as date,
         {{ stock_col }} as stock,
+        {{ quantity_col }} as quantity,
+        {{ price_per_quantity_col }} as price_per_quantity,
+        {{ unit_col }} as unit,
         lag({{ stock_col }}) over (partition by {{ image_col }} order by {{ date_col }}) as prev_stock
     from {{ ref(source_table) }}
 ),
@@ -41,6 +44,9 @@ final as (
         product_id,
         date,
         stock,
+        quantity,
+        price_per_quantity,
+        unit,
         {{ stock_diff_hors_restock('raw_stock_diff', 'image_url', 'mean_negative_stock_diff') }} as sales
     from diffs d
     left join mean_neg m on d.image_url = m.image_url
@@ -49,4 +55,3 @@ final as (
 select * from final
 
 {% endmacro %}
-

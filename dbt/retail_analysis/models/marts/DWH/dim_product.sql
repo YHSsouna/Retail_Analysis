@@ -4,10 +4,7 @@ with all_products as (
     select distinct
         product_id,
         name,
-        quantity,
-        unit,
         NULL as marque,
-        price_per_quantity,
         category,
         image_url as picture,
         store
@@ -18,10 +15,7 @@ with all_products as (
     select distinct
         product_id,
         name,
-        quantity,
-        unit,
         NULL as marque,
-        price_per_quantity,
         category,
         image_url as picture,
         store
@@ -32,10 +26,7 @@ with all_products as (
     select distinct
         product_id,
         name,
-        quantity,
-        unit,
         NULL as marque,
-        price_per_quantity,
         category,
         image_url as picture,
         store
@@ -46,10 +37,7 @@ with all_products as (
     select distinct
         product_id,
         name,
-        quantity,
-        unit,
         marque,
-        price_per_quantity,
         category,
         image_url as picture,
         store
@@ -60,10 +48,7 @@ final_product as (
     select
         p.product_id,
         p.name,
-        p.quantity,
-        p.unit,
         p.marque,
-        p.price_per_quantity,
         c.id_category,
         i.id_picture,
         s.id_store
@@ -74,6 +59,19 @@ final_product as (
         on p.picture = i.picture
     left join {{ ref('dim_store') }} s
         on p.store = s.store
+),
+
+deduplicated as (
+    select *
+    from (
+        select *,
+            row_number() over (
+                partition by product_id
+                order by id_category, id_store, id_picture
+            ) as rn
+        from final_product
+    ) sub
+    where rn = 1
 )
 
-select * from final_product
+select * from deduplicated

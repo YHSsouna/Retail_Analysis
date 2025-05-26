@@ -2,21 +2,23 @@
 
 WITH RECURSIVE
 
--- Get min and max date per image_url
+-- Get min and max date per image_url + name
 image_url_dates AS (
     SELECT
         image_url,
+        name,
         MIN(date) AS min_date,
         MAX(date) AS max_date
     FROM {{ ref('stg_auchan') }}
-    WHERE image_url IS NOT NULL
-    GROUP BY image_url
+    WHERE image_url IS NOT NULL AND name IS NOT NULL
+    GROUP BY image_url, name
 ),
 
--- Generate date range per image_url
+-- Generate date range per image_url + name
 image_date_matrix AS (
     SELECT
         i.image_url,
+        i.name,
         generate_series(i.min_date, i.max_date, INTERVAL '1 day')::date AS date_day
     FROM image_url_dates i
 ),
@@ -25,8 +27,8 @@ image_date_matrix AS (
 joined AS (
     SELECT
         m.image_url,
+        m.name,
         m.date_day,
-        a.name,
         a.price,
         a.stock,
         a.quantity,
@@ -38,6 +40,7 @@ joined AS (
     FROM image_date_matrix m
     LEFT JOIN {{ ref('stg_auchan') }} a
       ON a.image_url = m.image_url
+     AND a.name = m.name
      AND a.date = m.date_day
 ),
 
@@ -45,16 +48,16 @@ joined AS (
 ordered AS (
     SELECT *
     FROM joined
-    ORDER BY image_url, date_day
+    ORDER BY image_url, name, date_day
 ),
 
 -- Base cases: first and last known records per product
 base_case AS (
     (
-        SELECT DISTINCT ON (image_url)
+        SELECT DISTINCT ON (image_url, name)
             image_url,
-            date_day,
             name,
+            date_day,
             price,
             stock,
             quantity,
@@ -65,16 +68,14 @@ base_case AS (
             store
         FROM ordered
         WHERE name IS NOT NULL OR price IS NOT NULL OR stock IS NOT NULL
-        ORDER BY image_url, date_day  -- first record
+        ORDER BY image_url, name, date_day
     )
-
     UNION
-
     (
-        SELECT DISTINCT ON (image_url)
+        SELECT DISTINCT ON (image_url, name)
             image_url,
-            date_day,
             name,
+            date_day,
             price,
             stock,
             quantity,
@@ -85,10 +86,9 @@ base_case AS (
             store
         FROM ordered
         WHERE name IS NOT NULL OR price IS NOT NULL OR stock IS NOT NULL
-        ORDER BY image_url, date_day DESC  -- last record
+        ORDER BY image_url, name, date_day DESC
     )
 ),
-
 
 -- Recursive forward fill
 recursive_fill AS (
@@ -98,8 +98,8 @@ recursive_fill AS (
 
     SELECT
         o.image_url,
+        o.name,
         o.date_day,
-        COALESCE(o.name, r.name) AS name,
         COALESCE(o.price, r.price) AS price,
         COALESCE(o.stock, r.stock) AS stock,
         COALESCE(o.quantity, r.quantity) AS quantity,
@@ -111,15 +111,23 @@ recursive_fill AS (
     FROM ordered o
     JOIN recursive_fill r
       ON o.image_url = r.image_url
+     AND o.name = r.name
      AND o.date_day = r.date_day + INTERVAL '1 day'
+),
+
+-- Deduplicate rows by keeping only one per (image_url, name, date_day)
+final_deduplicated AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY image_url, name, date_day ORDER BY image_url, name, date_day) AS rn
+    FROM recursive_fill
 )
 
 -- Final result
 SELECT
-    ROW_NUMBER() OVER (ORDER BY image_url, date_day) AS id,
-    CAST(('x' || substr(md5(image_url), 1, 16))::bit(64) AS BIGINT) as product_id,  -- <--- Generate product_id based on image_url
+    ROW_NUMBER() OVER (ORDER BY image_url, name, date_day) AS id,
+    CAST(('x' || substr(md5(image_url || name), 1, 16))::bit(64) AS BIGINT) AS product_id,
     image_url,
-    date_day as date,
+    date_day AS date,
     name,
     price,
     stock,
@@ -129,5 +137,6 @@ SELECT
     category,
     marque,
     store
-FROM recursive_fill
-ORDER BY image_url, date_day
+FROM final_deduplicated
+WHERE rn = 1
+ORDER BY image_url, name, date_day
