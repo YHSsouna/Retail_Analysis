@@ -1,0 +1,26 @@
+version: 2
+
+sources:
+  - name: public
+    tables:
+      - name: labellevie
+      - name: auchan
+      - name: carrefour
+      - name: biocoop
+      - name: biocoop_cat
+      - name: auchan_cat
+      - name: labellevie_cat
+      - name: carrefour_cat
+      - name: labellevie_norm
+      - name: auchan_norm
+      - name: Store_img
+      - name: biocoop_section
+      - name: auchan_section
+      - name: labellevie_section
+      - name: carrefour_section
+  - name: public_staging
+    tables:
+      - name: stg_auchan
+  - name: public_intermediate
+    tables:
+      - name: inter_auchan
