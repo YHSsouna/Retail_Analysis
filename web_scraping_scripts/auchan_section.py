@@ -152,8 +152,7 @@ try:
     for _, row in df.iterrows():
         cur.execute(sql, (
             row["Product Name"],
-            row["Sub Category"],
-            row["Category"]
+            row["Section"]
         ))
         number += 1
     # Commit and close connection
