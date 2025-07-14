@@ -28,7 +28,8 @@ dim_store as (
     from raw_store rs
     left join raw_category rc
         on rs.store = rc.store
-
+    where rs.store is not null
+      and trim(rs.store) <> ''
 )
 
 select * from dim_store

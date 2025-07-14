@@ -17,6 +17,11 @@ dim_category as (
         section,
         category
     from raw_cat
+    where category is not null
+      and trim(category) <> ''
+      and section is not null
+      and trim(section) <> ''
+
 )
 
 select * from dim_category

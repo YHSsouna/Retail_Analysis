@@ -24,3 +24,4 @@ sources:
   - name: public_intermediate
     tables:
       - name: inter_auchan
+      - name: predicted_stock_diff

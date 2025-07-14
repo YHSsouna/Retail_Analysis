@@ -57,7 +57,7 @@ final_product as (
         on p.category = c.category
     left join {{ ref('dim_picture') }} i
         on p.picture = i.picture
-    left join {{ ref('dim_store') }} s
+    inner join {{ ref('dim_store') }} s
         on p.store = s.store
 ),
 

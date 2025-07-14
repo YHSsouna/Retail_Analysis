@@ -1,4 +1,4 @@
-retail_analysis:
+retail:
   outputs:
     dev:
       dbname: airflow
@@ -6,7 +6,7 @@ retail_analysis:
       pass: airflow
       port: 5432
       schema: public
-      threads: 1
+      threads: 2
       type: postgres
       user: airflow
   target: dev

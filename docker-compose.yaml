@@ -21,6 +21,11 @@ x-airflow-common:
     - ${AIRFLOW_PROJ_DIR:-.}/web_scraping_scripts:/opt/airflow/web_scraping_scripts
     - ${AIRFLOW_PROJ_DIR:-.}/models:/opt/airflow/models
     - ${AIRFLOW_PROJ_DIR:-.}/mlruns:/mlflow/artifacts
+    - dbt_target:/opt/airflow/dbt/retail_analysis/target
+    - ${AIRFLOW_PROJ_DIR:-.}/requirements.txt:/opt/airflow/requirements.txt
+    - ${AIRFLOW_PROJ_DIR:-.}/retail:/opt/airflow/retail
+
+
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -145,18 +150,17 @@ services:
         condition: service_completed_successfully
 
   dbt:
-    image: ghcr.io/dbt-labs/dbt-postgres:latest
-    volumes:
-      - ./dbt/retail_analysis:/usr/app
-      - ./dbt/profiles.yml:/usr/app/profiles.yml
-
-    working_dir: /usr/app
-    ports:
-      - "9900:8080"
-    depends_on:
-      - postgres
-    environment:
-      DBT_PROFILES_DIR: /usr/app
+      image: ghcr.io/dbt-labs/dbt-postgres:latest
+      volumes:
+        - ./dbt/retail_analysis:/usr/app
+        - ./dbt/profiles.yml:/usr/app/profiles.yml # This is mounted to the dbt service
+      working_dir: /usr/app
+      ports:
+        - "9900:8080" # This port mapping might not be strictly needed for Airflow to trigger it
+      depends_on:
+        - postgres
+      environment:
+        DBT_PROFILES_DIR: /usr/app # This tells the dbt container where its profiles.yml is
 
   pgadmin:
     image: dpage/pgadmin4
@@ -201,3 +205,4 @@ volumes:
   postgres-db-volume:
   pgadmin-data:
   mlflow-artifacts:
+  dbt_target:

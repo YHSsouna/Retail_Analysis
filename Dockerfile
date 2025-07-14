@@ -38,10 +38,12 @@ RUN EDGE_VERSION=$(microsoft-edge --version | awk '{print $NF}') \
 # Switch to Airflow user
 USER airflow
 
+# Install dbt-core and dbt-postgres
+RUN pip install --no-cache-dir dbt-core==1.5.1 dbt-postgres==1.5.1
 # Copy and Install Python dependencies
 COPY requirements.txt /opt/airflow/requirements.txt
 RUN pip install --upgrade pip \
-    && pip install --no-cache-dir -r /opt/airflow/requirements.txt
+    && pip install -r /opt/airflow/requirements.txt
 
 
 

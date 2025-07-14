@@ -21,6 +21,10 @@ with raw_dates as (
     select distinct date::date as date
     from {{ ref('inter_auchan') }}
 
+    union
+
+    select distinct ds::date as date
+    from {{ source('public_intermediate', 'predicted_stock_diff') }}
 ),
 
 dim_date as (
