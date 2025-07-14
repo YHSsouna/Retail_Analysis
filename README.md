@@ -55,7 +55,8 @@ This project aims to **collect daily data from four major supermarket websites**
 
 Below is a sample of the interactive dashboard generated from the pipeline:
 
-![Power BI Dashboard]([screenshots/powerbi_dashboard.png](https://github.com/YHSsouna/Retail_Analysis/blob/master/Screenshot%202025-07-14%20183159.png?raw=true))
+<img src="https://github.com/YHSsouna/Retail_Analysis/blob/f12f6e9f1f4386c177fb5fc4acfc9cfb99c57676/Screenshot%202025-07-14%20183159.png" alt="Power BI screenshot"/>
+
 
 ```bash
 docker-compose up --build
