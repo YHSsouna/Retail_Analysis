@@ -5,6 +5,7 @@ This project aims to **collect daily data from four major supermarket websites**
 ## 🧾 Overview
 
 ## 📊 Pipeline Features
+https://github.com/YHSsouna/Retail_Analysis/blob/24fab9295b67d4bbd451e5305b8fcfd20450e827/architecture.png
 
 - **🔍 Daily web scraping** from 4 retail websites (Python, Selenium)
 - **🧠 LLM-based data transformation:** Automatically extract product quantity and unit from product names  
