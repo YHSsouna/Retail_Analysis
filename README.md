@@ -5,7 +5,7 @@ This project aims to **collect daily data from four major supermarket websites**
 
 ## 📊 Pipeline Features
 
-<img src="https://github.com/YHSsouna/Retail_Analysis/blob/24fab9295b67d4bbd451e5305b8fcfd20450e827/architecture.png" alt="Architecture Diagram" width="800"/>
+<img src="https://github.com/YHSsouna/Retail_Analysis/blob/24fab9295b67d4bbd451e5305b8fcfd20450e827/architecture.png" alt="Architecture Diagram" width="600"/>
 
 
 - **🔍 Daily web scraping** from 4 retail websites (Python, Selenium)
@@ -40,4 +40,25 @@ This project aims to **collect daily data from four major supermarket websites**
 | Containerization | Docker, Docker Compose         |
 
 ## 📁 Project Structure
+## 📂 Project Structure
+
+- `dags/`: Airflow DAGs
+- `retail/`: dbt models and SQL transformations
+- `web_scraping_scripts/`: Python scrapers for retail websites
+- `docker-compose.yaml`: Runs the full pipeline in Docker
+- `dockerfile`: build the airflow image
+- `dockerfile.mlflow`: build the mlflow image
+
+## 🚀 Getting Started
+
+## 📈 Power BI Dashboard
+
+Below is a sample of the interactive dashboard generated from the pipeline:
+
+![Power BI Dashboard]([screenshots/powerbi_dashboard.png](https://github.com/YHSsouna/Retail_Analysis/blob/master/Screenshot%202025-07-14%20183159.png?raw=true))
+
+```bash
+docker-compose up --build
+
+
 
